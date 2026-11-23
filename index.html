@@ -20,24 +20,23 @@ canvas{background:linear-gradient(#38bdf8,#e0f2fe);border:4px solid #2563eb;bord
 <canvas id="c" width="380" height="320"></canvas>
 <button class="start" onclick="startGame()">▶️ START - Laf Dewar Jonno Ready?</button><br>
 <button class="jump-btn" ontouchstart="jump()" onclick="jump()">🦘 LAF DE! TAP KOR</button>
-<p style="opacity:.6;font-size:13px;margin-top:8px">Space chapleo laf dibe • Pathor e laglei sesh!</p>
+<p style="opacity:.6;font-size:13px;margin-top:8px">Ekhon pison diya lagbe na! • Age laf dao</p>
 <script>
 let cv=document.getElementById('c'), ctx=cv.getContext('2d');
-let player, gravity, obstacles, score, best=localStorage.getItem('lafalafi_best')||0, timer, gameOn=false;
+let player, gravity, obstacles, score, best=localStorage.getItem('lafalafi_best')||0, timer, gameOn=false, speed=4;
 document.getElementById('best').innerText=best;
 function startGame(){
-  player={x:50,y:220,w:36,h:44,vy:0,jumping:false};
-  gravity=0.8; obstacles=[]; score=0;
+  player={x:50,y:220,w:30,h:40,vy:0,jumping:false};
+  gravity=0.7; obstacles=[]; score=0; speed=4;
   document.getElementById('sc').innerText=0;
   gameOn=true; clearInterval(timer);
   timer=setInterval(draw,20);
 }
 function jump(){
   if(!gameOn) startGame();
-  if(!player.jumping){ player.vy=-14; player.jumping=true; }
+  if(!player.jumping){ player.vy=-16; player.jumping=true; }
 }
 document.addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); jump(); } });
-document.addEventListener('touchstart',e=>{ if(e.target.tagName!=='BUTTON') jump(); });
 let frame=0;
 function draw(){
   frame++;
@@ -49,15 +48,20 @@ function draw(){
   player.vy+=gravity; player.y+=player.vy;
   if(player.y>=220){ player.y=220; player.vy=0; player.jumping=false; }
   ctx.font='38px serif'; ctx.fillText('🦘',player.x,player.y+38);
-  if(frame%90===0){
+  if(frame%110===0){
     let type=Math.random()>0.5?'🪨':'🌵';
-    obstacles.push({x:380,y:225,type:type});
+    obstacles.push({x:380,y:228,type:type});
   }
-  obstacles.forEach(o=>{ o.x-=5; ctx.font='36px serif'; ctx.fillText(o.type,o.x,o.y+35); });
+  // Aste aste speed barbe
+  if(frame%500===0 && speed<7) speed+=0.5;
+  obstacles.forEach(o=>{ o.x-=speed; ctx.font='34px serif'; ctx.fillText(o.type,o.x,o.y+32); });
   obstacles=obstacles.filter(o=>o.x>-40);
   if(frame%10===0){ score++; document.getElementById('sc').innerText=score; }
+  // FIX: Hitbox choto korlam, ekhon samne laglei morbe, pison diya lagbe na
   for(let o of obstacles){
-    if(player.x+28>o.x && player.x<o.x+28 && player.y+30>o.y){
+    let px = player.x+10, pw=18, py=player.y+8, ph=28;
+    let ox = o.x+8, ow=18, oy=o.y, oh=28;
+    if(px+pw>ox && px<ox+ow && py+ph>oy){
       clearInterval(timer); gameOn=false;
       alert('💀 Dhora Khaiso! Score: '+score);
       if(score>best){ best=score; localStorage.setItem('lafalafi_best',best); document.getElementById('best').innerText=best; }
@@ -67,4 +71,4 @@ function draw(){
 }
 </script>
 </body>
-  </html>
+</html>
