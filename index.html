@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Rul's Lafalafi - Jumping Game</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0} body{background:#0f172a;color:#fff;font-family:sans-serif;text-align:center;overflow:hidden;user-select:none}
+h1{margin:12px 0 2px;font-size:30px} h1 span{color:#facc15}
+.score{font-size:19px;font-weight:800} .score b{color:#22c55e}
+canvas{background:linear-gradient(#38bdf8,#e0f2fe);border:4px solid #2563eb;border-radius:18px;display:block;margin:12px auto;max-width:96vw}
+.jump-btn{width:90%;max-width:400px;background:linear-gradient(90deg,#ff00cc,#7b2ff7);color:#fff;border:none;padding:18px;border-radius:30px;font-size:22px;font-weight:900;margin-top:5px;box-shadow:0 5px 0 #4c1d95}
+.jump-btn:active{transform:translateY(3px);box-shadow:none}
+.start{background:#22c55e;color:#fff;border:none;padding:13px 28px;border-radius:30px;font-size:18px;font-weight:800;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>🦘 Rul's <span>Lafalafi</span></h1>
+<div class="score">Score: <b id="sc">0</b> | Best: <b id="best">0</b></div>
+<canvas id="c" width="380" height="320"></canvas>
+<button class="start" onclick="startGame()">▶️ START - Laf Dewar Jonno Ready?</button><br>
+<button class="jump-btn" ontouchstart="jump()" onclick="jump()">🦘 LAF DE! TAP KOR</button>
+<p style="opacity:.6;font-size:13px;margin-top:8px">Space chapleo laf dibe • Pathor e laglei sesh!</p>
+<script>
+let cv=document.getElementById('c'), ctx=cv.getContext('2d');
+let player, gravity, obstacles, score, best=localStorage.getItem('lafalafi_best')||0, timer, gameOn=false;
+document.getElementById('best').innerText=best;
+function startGame(){
+  player={x:50,y:220,w:36,h:44,vy:0,jumping:false};
+  gravity=0.8; obstacles=[]; score=0;
+  document.getElementById('sc').innerText=0;
+  gameOn=true; clearInterval(timer);
+  timer=setInterval(draw,20);
+}
+function jump(){
+  if(!gameOn) startGame();
+  if(!player.jumping){ player.vy=-14; player.jumping=true; }
+}
+document.addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); jump(); } });
+document.addEventListener('touchstart',e=>{ if(e.target.tagName!=='BUTTON') jump(); });
+let frame=0;
+function draw(){
+  frame++;
+  ctx.fillStyle='#38bdf8'; ctx.fillRect(0,0,380,320);
+  ctx.fillStyle='rgba(255,255,255,.9)';
+  ctx.fillRect((frame*0.5)%420-20,30,60,18); ctx.fillRect((frame*0.3+150)%420-20,70,50,16);
+  ctx.fillStyle='#22c55e'; ctx.fillRect(0,265,380,55);
+  ctx.fillStyle='#16a34a'; ctx.fillRect(0,265,380,8);
+  player.vy+=gravity; player.y+=player.vy;
+  if(player.y>=220){ player.y=220; player.vy=0; player.jumping=false; }
+  ctx.font='38px serif'; ctx.fillText('🦘',player.x,player.y+38);
+  if(frame%90===0){
+    let type=Math.random()>0.5?'🪨':'🌵';
+    obstacles.push({x:380,y:225,type:type});
+  }
+  obstacles.forEach(o=>{ o.x-=5; ctx.font='36px serif'; ctx.fillText(o.type,o.x,o.y+35); });
+  obstacles=obstacles.filter(o=>o.x>-40);
+  if(frame%10===0){ score++; document.getElementById('sc').innerText=score; }
+  for(let o of obstacles){
+    if(player.x+28>o.x && player.x<o.x+28 && player.y+30>o.y){
+      clearInterval(timer); gameOn=false;
+      alert('💀 Dhora Khaiso! Score: '+score);
+      if(score>best){ best=score; localStorage.setItem('lafalafi_best',best); document.getElementById('best').innerText=best; }
+      return;
+    }
+  }
+}
+</script>
+</body>
+  </html>
