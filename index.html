@@ -3,71 +3,74 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Rul's Lafalafi - Jumping Game</title>
+<title>Rul's Lafalafi PRO</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0} body{background:#0f172a;color:#fff;font-family:sans-serif;text-align:center;overflow:hidden;user-select:none}
-h1{margin:12px 0 2px;font-size:30px} h1 span{color:#facc15}
-.score{font-size:19px;font-weight:800} .score b{color:#22c55e}
-canvas{background:linear-gradient(#38bdf8,#e0f2fe);border:4px solid #2563eb;border-radius:18px;display:block;margin:12px auto;max-width:96vw}
-.jump-btn{width:90%;max-width:400px;background:linear-gradient(90deg,#ff00cc,#7b2ff7);color:#fff;border:none;padding:18px;border-radius:30px;font-size:22px;font-weight:900;margin-top:5px;box-shadow:0 5px 0 #4c1d95}
-.jump-btn:active{transform:translateY(3px);box-shadow:none}
-.start{background:#22c55e;color:#fff;border:none;padding:13px 28px;border-radius:30px;font-size:18px;font-weight:800;margin-top:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b1220;color:#fff;font-family:system-ui;text-align:center;overflow:hidden}
+.top{padding:10px}
+h1{font-size:32px} h1 span{color:#facc15}
+.badges{display:flex;justify-content:center;gap:8px;margin:8px}
+.badge{background:#1e293b;padding:6px 12px;border-radius:20px;font-weight:800;font-size:14px}
+.badge b{color:#22c55e}
+canvas{background:linear-gradient(#7dd3fc,#e0f2fe);border:4px solid #1e40af;border-radius:16px;display:block;margin:8px auto;max-width:96vw;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.btn{width:92%;max-width:420px;border:none;border-radius:999px;padding:18px;font-size:22px;font-weight:900;color:#fff;margin:5px auto;display:block}
+#jumpBtn{background:linear-gradient(90deg,#ec4899,#7c3aed);box-shadow:0 6px 0 #4c1d95}
+#jumpBtn:active{transform:translateY(4px);box-shadow:none}
+#startBtn{background:#22c55e;box-shadow:0 4px 0 #14532d}
 </style>
 </head>
 <body>
-<h1>🦘 Rul's <span>Lafalafi</span></h1>
-<div class="score">Score: <b id="sc">0</b> | Best: <b id="best">0</b></div>
-<canvas id="c" width="380" height="320"></canvas>
-<button class="start" onclick="startGame()">▶️ START - Laf Dewar Jonno Ready?</button><br>
-<button class="jump-btn" ontouchstart="jump()" onclick="jump()">🦘 LAF DE! TAP KOR</button>
-<p style="opacity:.6;font-size:13px;margin-top:8px">Ekhon pison diya lagbe na! • Age laf dao</p>
+<div class="top"><h1>🦘 Rul's <span>LAFALAFI PRO</span></h1>
+<div class="badges"><div class="badge">Score: <b id="sc">0</b></div><div class="badge">🪙 Coin: <b id="coin">0</b></div><div class="badge">Best: <b id="best">0</b></div></div>
+<div class="badge" id="level">Level 1 - Aste Cholche...</div></div>
+<canvas id="c" width="390" height="340"></canvas>
+<button class="btn" id="startBtn" onclick="startGame()">▶️ PLAY - PRO VERSION</button>
+<button class="btn" id="jumpBtn" ontouchstart="jump(event)" onclick="jump(event)">🦘 DOUBLE LAF! TAP KOR</button>
+<p style="opacity:.6;font-size:13px">2 bar tap korle double laf dibe • Coin khaile +10</p>
 <script>
 let cv=document.getElementById('c'), ctx=cv.getContext('2d');
-let player, gravity, obstacles, score, best=localStorage.getItem('lafalafi_best')||0, timer, gameOn=false, speed=4;
+let p, obs, coins, clouds, score, coinCount, best=localStorage.getItem('pro_best')||0, gameOn=false, timer, frame=0, speed=4, jumps=0;
 document.getElementById('best').innerText=best;
 function startGame(){
-  player={x:50,y:220,w:30,h:40,vy:0,jumping:false};
-  gravity=0.7; obstacles=[]; score=0; speed=4;
-  document.getElementById('sc').innerText=0;
-  gameOn=true; clearInterval(timer);
-  timer=setInterval(draw,20);
+ p={x:55,y:235,w:38,h:48,vy:0}; obs=[]; coins=[]; clouds=[]; score=0; coinCount=0; speed=4.2; frame=0; jumps=0;
+ document.getElementById('sc').innerText=0; document.getElementById('coin').innerText=0;
+ document.getElementById('level').innerText='Level 1 - Aste Cholche...';
+ gameOn=true; clearInterval(timer); timer=setInterval(draw,16);
 }
-function jump(){
-  if(!gameOn) startGame();
-  if(!player.jumping){ player.vy=-16; player.jumping=true; }
+function jump(e){ if(e) e.preventDefault(); if(!gameOn) startGame(); if(jumps<2){ p.vy=-13.5; jumps++; } }
+document.addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); jump(); }});
+function drawKangaroo(x,y){
+ ctx.fillStyle='#e67e22'; ctx.beginPath(); ctx.ellipse(x+19,y+30,18,22,0,0,7); ctx.fill();
+ ctx.fillStyle='#e67e22'; ctx.beginPath(); ctx.ellipse(x+28,y+10,9,16,-0.4,0,7); ctx.fill();
+ ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x+32,y+8,4,0,7); ctx.fill(); ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(x+33,y+8,2,0,7); ctx.fill();
+ ctx.strokeStyle='#e67e22'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(x+5,y+40); ctx.lineTo(x-8,y+48); ctx.stroke();
+ ctx.fillStyle='#d35400'; ctx.fillRect(x+8,y+42,14,5);
 }
-document.addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); jump(); } });
-let frame=0;
 function draw(){
-  frame++;
-  ctx.fillStyle='#38bdf8'; ctx.fillRect(0,0,380,320);
-  ctx.fillStyle='rgba(255,255,255,.9)';
-  ctx.fillRect((frame*0.5)%420-20,30,60,18); ctx.fillRect((frame*0.3+150)%420-20,70,50,16);
-  ctx.fillStyle='#22c55e'; ctx.fillRect(0,265,380,55);
-  ctx.fillStyle='#16a34a'; ctx.fillRect(0,265,380,8);
-  player.vy+=gravity; player.y+=player.vy;
-  if(player.y>=220){ player.y=220; player.vy=0; player.jumping=false; }
-  ctx.font='38px serif'; ctx.fillText('🦘',player.x,player.y+38);
-  if(frame%110===0){
-    let type=Math.random()>0.5?'🪨':'🌵';
-    obstacles.push({x:380,y:228,type:type});
-  }
-  // Aste aste speed barbe
-  if(frame%500===0 && speed<7) speed+=0.5;
-  obstacles.forEach(o=>{ o.x-=speed; ctx.font='34px serif'; ctx.fillText(o.type,o.x,o.y+32); });
-  obstacles=obstacles.filter(o=>o.x>-40);
-  if(frame%10===0){ score++; document.getElementById('sc').innerText=score; }
-  // FIX: Hitbox choto korlam, ekhon samne laglei morbe, pison diya lagbe na
-  for(let o of obstacles){
-    let px = player.x+10, pw=18, py=player.y+8, ph=28;
-    let ox = o.x+8, ow=18, oy=o.y, oh=28;
-    if(px+pw>ox && px<ox+ow && py+ph>oy){
-      clearInterval(timer); gameOn=false;
-      alert('💀 Dhora Khaiso! Score: '+score);
-      if(score>best){ best=score; localStorage.setItem('lafalafi_best',best); document.getElementById('best').innerText=best; }
-      return;
-    }
-  }
+ frame++;
+ ctx.fillStyle='#7dd3fc'; ctx.fillRect(0,0,390,340);
+ if(frame%80===0) clouds.push({x:400,y:Math.random()*100+20});
+ clouds.forEach(c=>{ c.x-=1; ctx.fillStyle='rgba(255,255,255,.9)'; ctx.beginPath(); ctx.ellipse(c.x,c.y,28,12,0,0,7); ctx.fill(); });
+ clouds=clouds.filter(c=>c.x>-50);
+ ctx.fillStyle='#a7f3d0'; ctx.fillRect(0,285,390,55);
+ ctx.fillStyle='#22c55e'; ctx.fillRect(0,285,390,10);
+ ctx.fillStyle='#16a34a'; for(let i=0;i<10;i++) ctx.fillRect((i*40-(frame*speed)%40),300,12,18);
+ p.vy+=0.65; p.y+=p.vy; if(p.y>=235){ p.y=235; p.vy=0; jumps=0; }
+ drawKangaroo(p.x,p.y);
+ if(frame%95===0) obs.push({x:390,y:250,type:Math.random()>0.5?'🌵':'🪨'});
+ if(frame%170===0) coins.push({x:390,y:170+Math.random()*60});
+ obs.forEach(o=>{ o.x-=speed; ctx.font='36px serif'; ctx.fillText(o.type,o.x,o.y+30); });
+ obs=obs.filter(o=>o.x>-40);
+ coins.forEach(c=>{ c.x-=speed; ctx.font='26px serif'; ctx.fillText('🪙',c.x,c.y); });
+ coins=coins.filter(c=>c.x>-30);
+ if(frame%8===0){ score++; document.getElementById('sc').innerText=score; }
+ if(score>200){ speed=6; document.getElementById('level').innerText='Level 2 - Ekhon Jore! 🔥'; }
+ if(score>500){ speed=7.5; document.getElementById('level').innerText='Level 3 - PRO MODE! 💀'; }
+ for(let c of coins){ if(Math.abs(p.x-c.x)<30 && Math.abs(p.y-c.y)<35){ coins.splice(coins.indexOf(c),1); coinCount++; score+=10; document.getElementById('coin').innerText=coinCount; document.getElementById('sc').innerText=score; } }
+ for(let o of obs){
+   let px=p.x+8, pw=22, py=p.y+5, ph=38, ox=o.x+7, ow=20, oy=o.y, oh=30;
+   if(px+pw>ox && px<ox+ow && py+ph>oy){ clearInterval(timer); gameOn=false; if(score>best){ best=score; localStorage.setItem('pro_best',best); document.getElementById('best').innerText=best; } alert('💀 Ses! Score: '+score+' | Coin: '+coinCount); return; }
+ }
 }
 </script>
 </body>
